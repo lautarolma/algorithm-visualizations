@@ -5,7 +5,9 @@
 (function (ns) {
   "use strict";
 
-  var tree = ns.TREE;
+  var TREES = ns.TREES;
+  var tree = TREES.classic;
+  var renderer = null;
 
   var els = {
     app: document.getElementById("app"),
@@ -20,6 +22,7 @@
     counter: document.getElementById("scene-counter"),
     targetChip: document.getElementById("target-chip"),
     modeChip: document.getElementById("mode-chip"),
+    treeSelect: document.getElementById("tree-select"),
     targetSelect: document.getElementById("target-select"),
     legend: document.getElementById("legend"),
     lessonCard: document.querySelector(".card-lesson"),
@@ -27,9 +30,8 @@
     printOnly: document.getElementById("print-only")
   };
 
-  var renderer = ns.createRenderer(tree, els);
-
   var state = {
+    treeKey: "classic",
     target: "F",
     guide: true,
     scenes: [],
@@ -37,7 +39,9 @@
   };
 
   function render(snapshot) {
-    renderer(snapshot);
+    if (renderer) {
+      renderer(snapshot);
+    }
   }
 
   var player = ns.createPlayer({
@@ -51,10 +55,14 @@
   /*
    * La guía curada solo aplica al árbol clásico buscando F. Cualquier otra
    * combinación entra en modo Explorar: la línea de tiempo se genera desde
-   * el trace real, con copy correcto para ese objetivo.
+   * el trace real, con copy correcto para ese árbol y ese objetivo.
    */
-  function isGuide(target) {
-    return target === "F";
+  function isGuide(treeKey, target) {
+    return treeKey === "classic" && target === "F";
+  }
+
+  function validTarget(value) {
+    return value === "Z" || Object.prototype.hasOwnProperty.call(tree.nodes, value);
   }
 
   function rebuild(startIndex) {
@@ -120,7 +128,16 @@
     });
   }
 
-  /* ---------- Selector de objetivo ---------- */
+  /* ---------- Selectores ---------- */
+
+  function buildTreeOptions() {
+    var html = Object.keys(TREES).map(function (key) {
+      return '<option value="' + key + '">' + TREES[key].label + "</option>";
+    }).join("");
+
+    els.treeSelect.innerHTML = html;
+    els.treeSelect.value = state.treeKey;
+  }
 
   function buildTargetOptions() {
     var ids = Object.keys(tree.nodes);
@@ -136,20 +153,48 @@
     els.targetSelect.value = state.target;
   }
 
+  function setTree(key) {
+    if (!TREES[key]) {
+      return;
+    }
+
+    state.treeKey = key;
+    tree = TREES[key];
+    renderer = ns.createRenderer(tree, els);
+
+    if (!validTarget(state.target)) {
+      state.target = tree.defaultTarget || Object.keys(tree.nodes)[0];
+    }
+
+    state.guide = isGuide(state.treeKey, state.target);
+    buildTargetOptions();
+    syncUrl();
+    rebuild(0);
+  }
+
   function setTarget(value) {
+    if (!validTarget(value)) {
+      return;
+    }
+
     state.target = value;
-    state.guide = isGuide(value);
+    state.guide = isGuide(state.treeKey, value);
     syncUrl();
     rebuild(0);
   }
 
   /* ---------- Deep-link ---------- */
 
+  function readTreeFromUrl() {
+    var params = new URLSearchParams(window.location.search);
+    var key = params.get("tree");
+    return key && Object.prototype.hasOwnProperty.call(TREES, key) ? key : "classic";
+  }
+
   function readTargetFromUrl() {
     var params = new URLSearchParams(window.location.search);
     var target = params.get("target");
-    var exists = target && (Object.prototype.hasOwnProperty.call(tree.nodes, target) || target === "Z");
-    return exists ? target : "F";
+    return target && validTarget(target) ? target : null;
   }
 
   function readSceneFromUrl() {
@@ -168,11 +213,19 @@
   function syncUrl() {
     try {
       var params = new URLSearchParams(window.location.search);
+
+      if (state.treeKey === "classic") {
+        params.delete("tree");
+      } else {
+        params.set("tree", state.treeKey);
+      }
+
       if (state.target === "F") {
         params.delete("target");
       } else {
         params.set("target", state.target);
       }
+
       params.delete("scene");
       var query = params.toString();
       var url = window.location.pathname + (query ? "?" + query : "") + window.location.hash;
@@ -337,10 +390,22 @@
 
   /* ---------- Arranque ---------- */
 
-  state.target = readTargetFromUrl();
-  state.guide = isGuide(state.target);
+  state.treeKey = readTreeFromUrl();
+  tree = TREES[state.treeKey];
+  renderer = ns.createRenderer(tree, els);
 
+  state.target = readTargetFromUrl() || tree.defaultTarget || Object.keys(tree.nodes)[0];
+  if (!validTarget(state.target)) {
+    state.target = tree.defaultTarget || Object.keys(tree.nodes)[0];
+  }
+  state.guide = isGuide(state.treeKey, state.target);
+
+  buildTreeOptions();
   buildTargetOptions();
+
+  els.treeSelect.addEventListener("change", function () {
+    setTree(els.treeSelect.value);
+  });
   els.targetSelect.addEventListener("change", function () {
     setTarget(els.targetSelect.value);
   });
