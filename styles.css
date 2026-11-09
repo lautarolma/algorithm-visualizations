@@ -33,10 +33,63 @@
   --pending-fill: #f3f4f6;
   --pending-ink: #4b5563;
 
+  --bg-glow-1: #fffdf8;
+  --bg-glow-2: #ece5d8;
+  --disc-empty: #fff;
+  --chip-bg: #fff;
+  --kbd-bg: #fff;
+  --on-ink: #fff;
+  --primary-hover: #111827;
+
   --radius: 18px;
   --shadow: 0 10px 30px rgba(31, 41, 51, .08);
   --font-ui: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+}
+
+/* ---------- Tema oscuro ---------- */
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg: #0e1116;
+  --surface: #171b22;
+  --surface-2: #1e232c;
+  --ink: #e7eaef;
+  --ink-soft: #b4bcc8;
+  --muted: #8b94a3;
+  --line: #2a313c;
+  --line-strong: #4a5462;
+
+  --base: #6aa5ff;
+  --base-fill: rgba(106, 165, 255, .16);
+  --base-ink: #cfe1ff;
+
+  --eval: #f0a93a;
+  --eval-fill: rgba(240, 169, 58, .16);
+  --eval-ink: #ffe3b0;
+
+  --found: #4ade80;
+  --found-fill: rgba(74, 222, 128, .14);
+  --found-ink: #c8f7d8;
+
+  --exhausted: #f87171;
+  --exhausted-fill: rgba(248, 113, 113, .14);
+  --exhausted-ink: #ffd1d1;
+
+  --pending: #94a3b8;
+  --pending-fill: rgba(148, 163, 184, .14);
+  --pending-ink: #cbd5e1;
+
+  --bg-glow-1: rgba(106, 165, 255, .09);
+  --bg-glow-2: rgba(74, 222, 128, .06);
+  --disc-empty: #0e1116;
+  --chip-bg: #1e232c;
+  --kbd-bg: #1e232c;
+  --on-ink: #0e1116;
+  --primary-hover: #f5f7fa;
+
+  --shadow: 0 10px 30px rgba(0, 0, 0, .5);
 }
 
 * {
@@ -53,8 +106,8 @@ body {
   font-family: var(--font-ui);
   color: var(--ink);
   background:
-    radial-gradient(1200px 600px at 15% -10%, #fffdf8 0%, rgba(255, 253, 248, 0) 60%),
-    radial-gradient(900px 500px at 100% 110%, #ece5d8 0%, rgba(236, 229, 216, 0) 55%),
+    radial-gradient(1200px 600px at 15% -10%, var(--bg-glow-1) 0%, rgba(0, 0, 0, 0) 60%),
+    radial-gradient(900px 500px at 100% 110%, var(--bg-glow-2) 0%, rgba(0, 0, 0, 0) 55%),
     var(--bg);
   -webkit-font-smoothing: antialiased;
 }
@@ -320,13 +373,13 @@ h1 {
 }
 
 .node.s-pending .disc {
-  fill: #fff;
+  fill: var(--disc-empty);
   stroke: var(--line-strong);
   stroke-dasharray: 4 4;
 }
 
 .node.s-faint .disc {
-  fill: #fff;
+  fill: var(--disc-empty);
   stroke: var(--line-strong);
   stroke-dasharray: none;
 }
@@ -375,7 +428,7 @@ h1 {
   dominant-baseline: central;
   font-size: 10px;
   font-weight: 700;
-  fill: #fff;
+  fill: var(--on-ink);
 }
 
 .mark {
@@ -462,7 +515,7 @@ h1 {
   gap: 5px;
   padding: 7px 10px;
   border-radius: 10px;
-  background: #fff;
+  background: var(--chip-bg);
   border: 1px solid var(--line-strong);
   box-shadow: 0 1px 0 rgba(0, 0, 0, .03);
 }
@@ -601,11 +654,30 @@ button:active {
 button.primary {
   background: var(--ink);
   border-color: var(--ink);
-  color: #fff;
+  color: var(--on-ink);
 }
 
 button.primary:hover {
-  background: #111827;
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+}
+
+.theme-toggle {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 999px;
+  font-size: 15px;
+  line-height: 1;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  color: var(--ink);
+}
+
+.theme-toggle:hover {
+  border-color: var(--ink-soft);
 }
 
 button:focus-visible {
@@ -648,7 +720,7 @@ kbd {
   border: 1px solid var(--line-strong);
   border-bottom-width: 2px;
   border-radius: 5px;
-  background: #fff;
+  background: var(--kbd-bg);
 }
 
 /* ---------- Leyenda ---------- */
@@ -863,6 +935,39 @@ kbd {
   @page {
     size: A4;
     margin: 16mm;
+  }
+
+  /* El papel siempre es claro, aunque la pantalla esté en oscuro. */
+  html,
+  html[data-theme="dark"] {
+    color-scheme: light;
+    --ink: #1f2933;
+    --ink-soft: #4b5563;
+    --muted: #7a746a;
+    --line: #ddd6c8;
+    --line-strong: #b8b0a1;
+    --surface: #fffdf8;
+    --disc-empty: #fff;
+
+    --base: #2563eb;
+    --base-fill: #dbeafe;
+    --base-ink: #1e3a8a;
+
+    --eval: #d97706;
+    --eval-fill: #fef3c7;
+    --eval-ink: #92400e;
+
+    --found: #15803d;
+    --found-fill: #dcfce7;
+    --found-ink: #14532d;
+
+    --exhausted: #b91c1c;
+    --exhausted-fill: #fee2e2;
+    --exhausted-ink: #7f1d1d;
+
+    --pending: #9ca3af;
+    --pending-fill: #f3f4f6;
+    --pending-ink: #4b5563;
   }
 
   html,

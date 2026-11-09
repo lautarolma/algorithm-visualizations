@@ -5,6 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>BFS en un árbol · el orden de aparición</title>
   <meta name="description" content="Visual didáctica y escalonada del recorrido BFS sobre un árbol: la cola FIFO, el orden de aparición y la evaluación del objetivo.">
+  <script>
+    // Aplica el tema antes del primer paint para evitar el flash blanco.
+    (function () {
+      try {
+        var saved = window.localStorage.getItem("bfs-theme");
+        var theme = saved === "dark" || saved === "light"
+          ? saved
+          : (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", theme);
+      } catch (error) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -26,6 +40,7 @@
         <span class="chip chip-mode" id="mode-chip">Guía</span>
         <span class="chip chip-target" id="target-chip">Objetivo: F</span>
         <span class="counter" id="scene-counter">1 / 10</span>
+        <button id="btn-theme" class="theme-toggle" type="button" aria-label="Activar tema oscuro" aria-pressed="false" title="Cambiar tema"><span aria-hidden="true">◐</span></button>
       </div>
     </header>
 

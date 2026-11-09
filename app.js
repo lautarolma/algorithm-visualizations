@@ -24,6 +24,7 @@
     modeChip: document.getElementById("mode-chip"),
     treeSelect: document.getElementById("tree-select"),
     targetSelect: document.getElementById("target-select"),
+    themeButton: document.getElementById("btn-theme"),
     legend: document.getElementById("legend"),
     lessonCard: document.querySelector(".card-lesson"),
     progress: document.getElementById("progress"),
@@ -298,6 +299,56 @@
   document.getElementById("btn-print").addEventListener("click", function () {
     window.print();
   });
+  els.themeButton.addEventListener("click", toggleTheme);
+
+  /* ---------- Tema ---------- */
+
+  var themeQuery = window.matchMedia
+    ? window.matchMedia("(prefers-color-scheme: dark)")
+    : null;
+
+  function currentTheme() {
+    return document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+  }
+
+  function applyTheme(theme) {
+    var isDark = theme === "dark";
+    document.documentElement.setAttribute("data-theme", theme);
+    els.themeButton.setAttribute("aria-pressed", String(isDark));
+    els.themeButton.setAttribute("aria-label", isDark ? "Activar tema claro" : "Activar tema oscuro");
+  }
+
+  function storedTheme() {
+    try {
+      var saved = window.localStorage.getItem("bfs-theme");
+      return saved === "dark" || saved === "light" ? saved : null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function toggleTheme() {
+    var next = currentTheme() === "dark" ? "light" : "dark";
+    applyTheme(next);
+    try {
+      window.localStorage.setItem("bfs-theme", next);
+    } catch (error) {
+      /* modo privado / file:// pueden bloquear localStorage. */
+    }
+  }
+
+  function initTheme() {
+    var saved = storedTheme();
+    applyTheme(saved || currentTheme());
+
+    if (themeQuery && themeQuery.addEventListener) {
+      themeQuery.addEventListener("change", function (event) {
+        if (!storedTheme()) {
+          applyTheme(event.matches ? "dark" : "light");
+        }
+      });
+    }
+  }
 
   /* ---------- Contenido imprimible ---------- */
 
@@ -402,6 +453,7 @@
 
   buildTreeOptions();
   buildTargetOptions();
+  initTheme();
 
   els.treeSelect.addEventListener("change", function () {
     setTree(els.treeSelect.value);
