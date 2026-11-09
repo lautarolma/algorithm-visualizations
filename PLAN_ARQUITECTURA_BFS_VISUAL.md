@@ -118,6 +118,11 @@ Detalles:
 - `aria-live="polite"` en la narración.
 - `prefers-reduced-motion`: transiciones instantáneas, sin autoplay.
 - En móvil: botones equivalentes (anterior/siguiente), sin depender del teclado.
+- Selector de **árbol** y de **objetivo** en la barra superior. La combinación
+  `classic + F` es la guía curada; cualquier otra entra en modo **Explorar**.
+- Tema claro/oscuro con persistencia en `localStorage`; sin preferencia guardada
+  respeta `prefers-color-scheme`.
+- Deep-links: `?tree=wide&target=B&scene=5` (y `#5` por compatibilidad).
 
 ---
 
@@ -127,12 +132,14 @@ La misma página, con `@media print`:
 
 - Se ocultan controles, pistas de teclado y navegación.
 - Se muestran **todas** las escenas, no solo la activa.
-- Se incluyen **3 diagramas estáticos** clave: inicio, la ola, encontrado.
+- Se incluyen **3 diagramas estáticos** elegidos por fase: semilla, primera
+  expansión y cierre (encontrado o no alcanzable). Funcionan con cualquier
+  árbol y cualquier objetivo.
 - Se imprime la leyenda de colores y la nota de complejidad.
 - `print-color-adjust: exact` para que los colores salgan.
 - `break-inside: avoid` en escenas y diagramas.
-- Salida: A4, 1–2 páginas, legible en blanco y negro (los badges numéricos
-  distinguen aunque el color se pierda).
+- Salida: A4, 3 páginas en la guía curada, legible en blanco y negro (los
+  badges numéricos distinguen aunque el color se pierda).
 
 Limitación asumida: la animación no se imprime. Se imprime el **estado resuelto**
 de cada diagrama clave, que es lo que sirve como guía de estudio.
@@ -144,15 +151,17 @@ de cada diagrama clave, que es lo que sirve como guía de estudio.
 ```
 BFS_visual/
 ├── index.html          # shell: árbol, cola, narración, controles, leyenda
-├── styles.css          # tokens de color, layout, animación, @media print
+├── styles.css          # tokens claro/oscuro, layout, animación, @media print
 ├── data/
-│   └── tree.js         # árbol fijo: nodos, coords, adj, orden de hijos
+│   └── trees.js        # árboles classic / wide / deep: nodos, coords, adj
 ├── lib/
-│   ├── trace.js        # motor puro: árbol + objetivo → beats[]
-│   ├── render.js       # beat → SVG/DOM (nodos, cola, badges, colores)
-│   ├── scenes.js       # 10 escenas: título, texto, rango de beats
-│   └── player.js       # índice de escena, teclado, play/pause, reset
-└── app.js              # composición
+│   ├── trace.js        # motor puro: árbol + objetivo → snapshots
+│   ├── render.js       # snapshot → SVG/DOM (nodos, cola, badges, colores)
+│   ├── scenes.js       # guía curada + generador del modo Explorar
+│   └── player.js       # índice de escena, teclado, animación, setScenes()
+├── tests/              # E2E con Playwright
+├── tools/              # generación del PDF
+└── app.js              # composición, selectores, tema, deep-links
 ```
 
 Sin build, sin dependencias, sin red. Se abre con `file://`.
@@ -193,6 +202,12 @@ Invariantes:
 - Un beat = una transición dominante.
 - Las escenas agrupan beats; avanzar escena = saltar al último beat del grupo.
 - El orden de hijos sale de `childOrder`, nunca del orden de iteración de un objeto.
+
+> **Nota de implementación:** el motor real devuelve **snapshots** completos
+> (`states`) en lugar de beats con `type`. Cada snapshot tiene `phase`
+> (`seed`, `dequeue`, `evaluate`, `expand`, `found`, `exhausted`), `status`
+> por nodo, `queue`, `order` y `label`. El renderer consume el snapshot entero,
+> lo que simplifica el replay y el retroceso.
 
 ---
 
@@ -245,36 +260,66 @@ Desglose del MVP:
       (formato informal aceptado; no se compactó a 2).
 - [x] Funciona con `file://`, sin red, sin build.
 - [x] Respeta `prefers-reduced-motion` y es usable con teclado y en móvil.
+- [x] Selector de objetivo con modo Guía / Explorar.
+- [x] Tres árboles seleccionables (`classic`, `wide`, `deep`).
+- [x] Modo oscuro con persistencia y print siempre claro.
+- [x] Deploy a GitHub Pages con los tests E2E como gate.
+- [x] 14 tests E2E con Playwright.
 
 ---
 
 ## 11. Estado de implementación
 
+**Funcionalidad entregada:**
+
+- Guía curada de 10 escenas para el árbol clásico buscando `F`, incluida la
+  corrida con `Z` (cola agotada).
+- Modo **Explorar**: el selector de objetivo genera la línea de tiempo desde
+  el `trace` real, con copy armado por fase. Funciona con cualquier nodo o con
+  un objetivo inexistente (`Z`).
+- **Tres árboles** seleccionables: `classic` (7 nodos), `wide` (10) y `deep`
+  (6). El objetivo se conserva al cambiar de árbol cuando existe.
+- **Modo oscuro** con persistencia en `localStorage`, respeto de
+  `prefers-color-scheme` y arranque sin flash (script inline en `<head>`).
+  La impresión fuerza siempre la paleta clara.
+- Deep-links: `?tree=wide&target=B&scene=5` y `#5`.
+- Print A4 de 3 páginas: 3 diagramas elegidos por fase, leyenda, complejidad y
+  todas las escenas del modo activo.
+- **14 tests E2E** con Playwright (escenas, teclado, escena 8, `Z`, selectores,
+  tema, print, reduced-motion, móvil).
+- Deploy a GitHub Pages con un workflow que corre los tests antes de publicar.
+
 **Archivos:**
 
 ```
 BFS_visual/
-├── index.html          # shell, paneles, controles, leyenda
-├── styles.css          # tema, animaciones, responsive, @media print
-├── data/tree.js        # árbol A(B(E,F), C, D(G))
+├── index.html          # shell, selectores, controles, leyenda, bootstrap de tema
+├── styles.css          # tokens claro/oscuro, animaciones, responsive, @media print
+├── data/trees.js       # árboles classic / wide / deep (coords fijas)
 ├── lib/trace.js        # motor puro: árbol + objetivo → snapshots
 ├── lib/render.js       # SVG, cola, colores, badges, SVG de impresión
-├── lib/scenes.js       # 10 escenas y copy didáctico
-├── lib/player.js       # índice de escena, animación, teclado
-└── app.js              # composición, impresión, deep-link ?scene=N
+├── lib/scenes.js       # guía curada + generador del modo Explorar
+├── lib/player.js       # escena, animación, teclado, setScenes()
+├── app.js              # composición, selectores, tema, deep-links, print
+├── tests/bfs.spec.js   # 14 tests E2E
+├── tools/print-pdf.mjs # PDF de la guía vía Chromium
+├── playwright.config.js
+├── package.json
+└── .github/workflows/pages.yml
 ```
 
 **Cómo abrir:** `index.html` con doble clic o `file://`. No requiere servidor.
-Para saltar a una escena: `index.html?scene=7` (1–10).
+Para tests y PDF: `npm install && npx playwright install chromium`.
 
 **Controles:** `Espacio` avanza · `Shift+Espacio` o `←` retrocede · `R` reinicia ·
 `P` imprime. Botones equivalentes para móvil.
 
 **Verificación realizada:**
-- `jsdom`: las 10 escenas, retroceso, reset y `?scene=10`, sin errores de consola.
-- Firefox headless: capturas de escenas 1, 6, 7, 9 y 10 (árbol, cola, colores,
-  encontrado, agotado y leyenda).
-- WeasyPrint: PDF A4 de 3 páginas con 3 diagramas, leyenda y las 10 escenas.
+- `npx playwright test`: 14/14 en Chromium.
+- Dry-run de Pages bajo subdirectorio (`/bfs-visual/`): sin 404.
+- PDF A4 de 3 páginas generado con Chromium (`npm run pdf`).
+- Smoke de lógica pura: los 3 árboles son árboles (V-1 aristas), coordenadas
+  dentro del viewBox, y todo objetivo termina en `found` o `exhausted`.
 
-**Extensiones posibles (no implementadas):** selector de objetivo en vivo,
-más árboles, modo oscuro, deploy en GitHub Pages, test E2E con Playwright.
+**Extensiones posibles (no implementadas):** árbol dibujado por el usuario,
+exportación SVG/PNG de un diagrama suelto, i18n.
