@@ -1,3 +1,6 @@
+# Sitio generado por el workflow de Pages
+_site/
+
 # Dependencias y artefactos de test
 node_modules/
 test-results/
