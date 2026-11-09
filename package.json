@@ -1,0 +1,14 @@
+{
+  "name": "bfs-visual",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Visual didáctica del recorrido BFS sobre un árbol: cola FIFO, orden de aparición y evaluación del objetivo.",
+  "scripts": {
+    "serve": "python3 -m http.server 4173",
+    "test:e2e": "playwright test",
+    "pdf": "node tools/print-pdf.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.0"
+  }
+}

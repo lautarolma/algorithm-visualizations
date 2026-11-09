@@ -96,9 +96,46 @@ h1 {
 
 .meta {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
+  justify-content: flex-end;
+  gap: 8px 10px;
   padding-bottom: 4px;
+}
+
+.field {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.field-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.select {
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.select:hover {
+  border-color: var(--ink-soft);
+}
+
+.select:focus-visible {
+  outline: 2px solid var(--base);
+  outline-offset: 2px;
 }
 
 .chip {
@@ -122,6 +159,24 @@ h1 {
   border-color: var(--exhausted);
   background: var(--exhausted-fill);
   color: var(--exhausted-ink);
+}
+
+.chip-target.is-found {
+  border-color: var(--found);
+  background: var(--found-fill);
+  color: var(--found-ink);
+}
+
+.chip-mode {
+  background: var(--surface-2);
+  border-color: var(--line-strong);
+  color: var(--ink-soft);
+}
+
+.chip-mode.is-live {
+  border-color: var(--base);
+  background: var(--base-fill);
+  color: var(--base-ink);
 }
 
 .counter {
