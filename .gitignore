@@ -1,0 +1,11 @@
+# Dependencias y artefactos de test
+node_modules/
+test-results/
+playwright-report/
+blob-report/
+.playwright/
+
+# Basura del sistema
+.DS_Store
+*.swp
+*~
