@@ -316,7 +316,7 @@ Para tests y PDF: `npm install && npx playwright install chromium`.
 
 **Verificación realizada:**
 - `npx playwright test`: 14/14 en Chromium.
-- Dry-run de Pages bajo subdirectorio (`/bfs-visual/`): sin 404.
+- Dry-run de Pages bajo subdirectorio: sin 404.
 - PDF A4 de 3 páginas generado con Chromium (`npm run pdf`).
 - Smoke de lógica pura: los 3 árboles son árboles (V-1 aristas), coordenadas
   dentro del viewBox, y todo objetivo termina en `found` o `exhausted`.

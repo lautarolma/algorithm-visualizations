@@ -1,8 +1,8 @@
 {
-  "name": "bfs-visual",
+  "name": "algorithm-visualizations",
   "version": "1.0.0",
   "private": true,
-  "description": "Visual didáctica del recorrido BFS sobre un árbol: cola FIFO, orden de aparición y evaluación del objetivo.",
+  "description": "Visualizaciones didácticas de algoritmos. BFS sobre un árbol es el primer módulo.",
   "scripts": {
     "serve": "python3 -m http.server 4173",
     "test:e2e": "playwright test",

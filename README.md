@@ -6,6 +6,9 @@ como objetivo.
 
 Sin frameworks, sin bundler, sin red. Abrís `index.html` y funciona.
 
+Es el primer módulo de **algorithm-visualizations**, un proyecto pensado para ir sumando
+visualizaciones de otros algoritmos reutilizando el reproductor y el shell.
+
 ## Cómo abrirla
 
 - **Doble clic** en `index.html` (funciona con `file://`).
@@ -70,16 +73,17 @@ npm run pdf   # genera guia-bfs.pdf con el CSS de impresión
 El workflow `.github/workflows/pages.yml` publica el sitio estático en cada push
 a `main` (copiando solo `index.html`, `styles.css`, `app.js`, `data/` y `lib/`).
 
-1. Creá el repo en GitHub y agregá el remote:
+1. Agregá el remote (el repo ya existe):
 
    ```bash
-   git remote add origin git@github.com:TU_USUARIO/bfs-visual.git
+   git remote add origin git@github.com:lautarolma/algorithm-visualizations.git
    git push -u origin main
    ```
 
-2. En el repo: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
-3. El próximo push a `main` (o *Run workflow*) publica el sitio en
-   `https://TU_USUARIO.github.io/bfs-visual/`.
+2. **Una sola vez:** en el repo, **Settings → Pages → Build and deployment →
+   Source: GitHub Actions**.
+3. El workflow corre los tests y, si pasan, publica en
+   `https://lautarolma.github.io/algorithm-visualizations/`.
 
 ## Estructura
 
@@ -97,3 +101,4 @@ tools/print-pdf.mjs genera el PDF de la guía
 ```
 
 El diseño completo está en `PLAN_ARQUITECTURA_BFS_VISUAL.md`.
+Las ideas para sumar más algoritmos están en `PROPUESTAS_FUTURAS.md`.
