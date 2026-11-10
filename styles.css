@@ -662,7 +662,8 @@ button.primary:hover {
   border-color: var(--primary-hover);
 }
 
-.theme-toggle {
+.theme-toggle,
+.legend-toggle {
   display: inline-grid;
   place-items: center;
   width: 32px;
@@ -676,8 +677,19 @@ button.primary:hover {
   color: var(--ink);
 }
 
-.theme-toggle:hover {
+.theme-toggle:hover,
+.legend-toggle:hover {
   border-color: var(--ink-soft);
+}
+
+.legend-toggle[aria-expanded="true"] {
+  border-color: var(--base);
+  color: var(--base);
+}
+
+button:disabled {
+  opacity: .45;
+  cursor: not-allowed;
 }
 
 button:focus-visible {

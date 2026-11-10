@@ -25,7 +25,11 @@
     treeSelect: document.getElementById("tree-select"),
     targetSelect: document.getElementById("target-select"),
     themeButton: document.getElementById("btn-theme"),
+    legendButton: document.getElementById("btn-legend"),
     legend: document.getElementById("legend"),
+    legendList: document.getElementById("legend-list"),
+    prevButton: document.getElementById("btn-prev"),
+    nextButton: document.getElementById("btn-next"),
     lessonCard: document.querySelector(".card-lesson"),
     progress: document.getElementById("progress"),
     printOnly: document.getElementById("print-only")
@@ -103,7 +107,9 @@
     els.targetChip.textContent = "Objetivo: " + last.target;
     els.targetChip.classList.toggle("is-alt", last.result === "exhausted");
     els.targetChip.classList.toggle("is-found", last.result === "found");
-    els.legend.classList.toggle("is-visible", index === state.scenes.length - 1);
+    els.prevButton.disabled = index === 0;
+    els.nextButton.disabled = index === state.scenes.length - 1;
+    syncUrl(index);
     updateProgress(index);
 
     els.lessonCard.classList.remove("swap");
@@ -169,7 +175,6 @@
 
     state.guide = isGuide(state.treeKey, state.target);
     buildTargetOptions();
-    syncUrl();
     rebuild(0);
   }
 
@@ -180,7 +185,6 @@
 
     state.target = value;
     state.guide = isGuide(state.treeKey, value);
-    syncUrl();
     rebuild(0);
   }
 
@@ -211,7 +215,7 @@
     return 0;
   }
 
-  function syncUrl() {
+  function syncUrl(index) {
     try {
       var params = new URLSearchParams(window.location.search);
 
@@ -227,9 +231,14 @@
         params.set("target", state.target);
       }
 
-      params.delete("scene");
+      if (index > 0) {
+        params.set("scene", String(index + 1));
+      } else {
+        params.delete("scene");
+      }
+
       var query = params.toString();
-      var url = window.location.pathname + (query ? "?" + query : "") + window.location.hash;
+      var url = window.location.pathname + (query ? "?" + query : "");
       window.history.replaceState(null, "", url);
     } catch (error) {
       /* file:// puede rechazar replaceState; el deep-link de lectura sigue vivo. */
@@ -243,9 +252,13 @@
     var target = event.target;
     var tag = target && target.tagName;
 
-    // Los controles nativos manejan sus propias teclas.
-    if ((tag === "SELECT" || tag === "INPUT" || tag === "TEXTAREA") &&
-        (code === "Space" || code === "Enter" || code.indexOf("Arrow") === 0)) {
+    // No pisamos atajos del navegador (Ctrl/Cmd+P, Alt+←, etc.).
+    if (event.ctrlKey || event.metaKey || event.altKey) {
+      return;
+    }
+
+    // Los controles de formulario manejan sus propias teclas (incluido el typeahead).
+    if (tag === "SELECT" || tag === "INPUT" || tag === "TEXTAREA") {
       return;
     }
     if (tag === "BUTTON" && (code === "Space" || code === "Enter")) {
@@ -287,10 +300,16 @@
 
   /* ---------- Botones ---------- */
 
-  document.getElementById("btn-next").addEventListener("click", function () {
+  function toggleLegend() {
+    var open = !els.legend.classList.contains("is-visible");
+    els.legend.classList.toggle("is-visible", open);
+    els.legendButton.setAttribute("aria-expanded", String(open));
+  }
+
+  els.nextButton.addEventListener("click", function () {
     player.next();
   });
-  document.getElementById("btn-prev").addEventListener("click", function () {
+  els.prevButton.addEventListener("click", function () {
     player.prev();
   });
   document.getElementById("btn-reset").addEventListener("click", function () {
@@ -300,6 +319,7 @@
     window.print();
   });
   els.themeButton.addEventListener("click", toggleTheme);
+  els.legendButton.addEventListener("click", toggleLegend);
 
   /* ---------- Tema ---------- */
 
@@ -352,14 +372,22 @@
 
   /* ---------- Contenido imprimible ---------- */
 
+  var LEGEND = [
+    ["base", "Azul: recorrido (desencolar y expandir)"],
+    ["eval", "Ámbar: evaluación (¿es el objetivo?)"],
+    ["found", "Verde: encontrado"],
+    ["exhausted", "Rojo: cola agotada"],
+    ["pending", "Gris: en cola, sin evaluar"]
+  ];
+
   function legendMarkup() {
-    return [
-      '<li><span class="swatch swatch-base"></span>Azul: recorrido (desencolar y expandir)</li>',
-      '<li><span class="swatch swatch-eval"></span>Ámbar: evaluación (¿es el objetivo?)</li>',
-      '<li><span class="swatch swatch-found"></span>Verde: encontrado</li>',
-      '<li><span class="swatch swatch-exhausted"></span>Rojo: cola agotada</li>',
-      '<li><span class="swatch swatch-pending"></span>Gris: en cola, sin evaluar</li>'
-    ].join("");
+    return LEGEND.map(function (item) {
+      return '<li><span class="swatch swatch-' + item[0] + '"></span>' + item[1] + "</li>";
+    }).join("");
+  }
+
+  function initLegend() {
+    els.legendList.innerHTML = legendMarkup();
   }
 
   function printQueueMarkup(snapshot) {
@@ -454,6 +482,7 @@
   buildTreeOptions();
   buildTargetOptions();
   initTheme();
+  initLegend();
 
   els.treeSelect.addEventListener("change", function () {
     setTree(els.treeSelect.value);

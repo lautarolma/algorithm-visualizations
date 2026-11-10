@@ -172,7 +172,7 @@ el shell no necesita saber si dibuja nodos o barras.
 
 | Ola | Contenido | Criterio para pasar a la siguiente |
 |-----|-----------|-----------------------------------|
-| **0. Extraer núcleo** | Mover player, tema, print y utilidades a `core/`; BFS queda como módulo #1 | Los 14 tests siguen verdes, la página se ve idéntica, no hay lógica duplicada |
+| **0. Extraer núcleo** | Mover player, tema, print y utilidades a `core/`; BFS queda como módulo #1 | Todos los tests siguen verdes, la página se ve idéntica, no hay lógica duplicada |
 | **1. Array** | Ordenamiento (burbuja, inserción, selección) + búsqueda binaria | 2 módulos con el mismo contrato; medir tiempo de alta de un algoritmo nuevo |
 | **2. Grafos** | DFS y Dijkstra reusando la vista de grafo | La vista se parametriza por semántica de estado (cola vs. pila vs. distancias) |
 | **3. Matriz** | LCS, mochila, N-Reinas | Con 3 tipos de vista, recién ahí evaluar un registro genérico |

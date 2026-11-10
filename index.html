@@ -41,6 +41,7 @@
         <span class="chip chip-mode" id="mode-chip">Guía</span>
         <span class="chip chip-target" id="target-chip">Objetivo: F</span>
         <span class="counter" id="scene-counter">1 / 10</span>
+        <button id="btn-legend" class="legend-toggle" type="button" aria-label="Cómo leer los colores" aria-expanded="false" aria-controls="legend" title="Leyenda de colores"><span aria-hidden="true">?</span></button>
         <button id="btn-theme" class="theme-toggle" type="button" aria-label="Activar tema oscuro" aria-pressed="false" title="Cambiar tema"><span aria-hidden="true">◐</span></button>
       </div>
     </header>
@@ -48,7 +49,7 @@
     <main class="stage">
       <section class="card card-tree" aria-label="Árbol de ejemplo">
         <svg id="tree" viewBox="0 0 800 400" role="img" aria-label="Árbol de ejemplo con el estado del recorrido BFS"></svg>
-        <div class="tree-caption" id="beat-label" aria-live="polite"></div>
+        <div class="tree-caption" id="beat-label"></div>
       </section>
 
       <aside class="side">
@@ -88,13 +89,7 @@
 
     <section class="legend" id="legend" aria-label="Leyenda de colores">
       <h2>Cómo leer los colores</h2>
-      <ul>
-        <li><span class="swatch swatch-base"></span>Azul: recorrido (desencolar y expandir)</li>
-        <li><span class="swatch swatch-eval"></span>Ámbar: evaluación (¿es el objetivo?)</li>
-        <li><span class="swatch swatch-found"></span>Verde: encontrado</li>
-        <li><span class="swatch swatch-exhausted"></span>Rojo: cola agotada</li>
-        <li><span class="swatch swatch-pending"></span>Gris: en cola, sin evaluar</li>
-      </ul>
+      <ul id="legend-list"></ul>
     </section>
 
     <noscript>

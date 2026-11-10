@@ -18,12 +18,13 @@ visualizaciones de otros algoritmos reutilizando el reproductor y el shell.
 
 | Tecla | Acción |
 |-------|--------|
-| `Espacio` | Avanza |
+| `Espacio` o `→` | Avanza (si está animando, salta al final de la escena) |
 | `Shift`+`Espacio` o `←` | Retrocede |
 | `R` | Reinicia |
 | `P` | Imprime |
 
-Hay botones equivalentes para móvil.
+Hay botones equivalentes para móvil. El botón `?` de la barra superior muestra u oculta
+la leyenda de colores, y los botones `←` / `Siguiente` se deshabilitan en los extremos.
 
 ## Modos
 
@@ -50,6 +51,8 @@ en cuál estás.
 - La impresión siempre sale en claro (A4, 3 diagramas + todas las escenas).
 - Deep-links: `?tree=wide&target=B&scene=5` (el árbol y el objetivo son
   opcionales; `scene` es 1-based). También acepta `#5`.
+- La URL se actualiza con `replaceState` al navegar: podés recargar o compartir
+  la escena exacta en la que estás.
 
 ## Tests
 

@@ -49,13 +49,26 @@ test.describe("guía curada", () => {
     await expect(page.locator("#queue-list .qchip.is-front")).toContainText("F");
   });
 
-  test("la escena 10 cierra con la corrida Z y la leyenda", async ({ page }) => {
+  test("la escena 10 cierra con la corrida Z", async ({ page }) => {
     await page.goto("/?scene=10");
 
     await expect(page.locator("#scene-counter")).toHaveText("10 / 10");
     await expect(page.locator("#target-chip")).toHaveText("Objetivo: Z");
     await expect(page.locator("#target-chip")).toHaveClass(/is-alt/);
+    await expect(page.locator("#legend")).toBeHidden();
+  });
+
+  test("el botón ? muestra y oculta la leyenda", async ({ page }) => {
+    await page.goto("/");
+
+    await expect(page.locator("#legend")).toBeHidden();
+    await page.click("#btn-legend");
     await expect(page.locator("#legend")).toBeVisible();
+    await expect(page.locator("#legend-list li")).toHaveCount(5);
+    await expect(page.locator("#btn-legend")).toHaveAttribute("aria-expanded", "true");
+
+    await page.click("#btn-legend");
+    await expect(page.locator("#legend")).toBeHidden();
   });
 });
 
@@ -162,6 +175,36 @@ test.describe("impresión", () => {
     await expect(page.locator(".print-figures figure")).toHaveCount(3);
     await expect(page.locator(".print-scenes li")).toHaveCount(total);
     await expect(page.locator(".print-only .subtitle")).toContainText("Buscando B en Ancho");
+  });
+});
+
+test.describe("navegación y atajos", () => {
+  test("la URL refleja la escena actual", async ({ page }) => {
+    await page.goto("/");
+    await expect(page).not.toHaveURL(/scene=/);
+
+    await page.keyboard.press("Space");
+    await expect(page).toHaveURL(/scene=2$/);
+
+    await page.keyboard.press("Shift+Space");
+    await expect(page).not.toHaveURL(/scene=/);
+  });
+
+  test("los botones se deshabilitan en los extremos", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.locator("#btn-prev")).toBeDisabled();
+    await expect(page.locator("#btn-next")).toBeEnabled();
+
+    await page.goto("/?scene=10");
+    await expect(page.locator("#btn-next")).toBeDisabled();
+    await expect(page.locator("#btn-prev")).toBeEnabled();
+  });
+
+  test("los atajos no se disparan desde un select", async ({ page }) => {
+    await page.goto("/?scene=2");
+    await page.focus("#target-select");
+    await page.keyboard.press("KeyR");
+    await expect(page.locator("#scene-counter")).toHaveText("2 / 10");
   });
 });
 
